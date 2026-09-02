@@ -1,1 +1,77 @@
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("tidyverse")
+install.packages("sf")
+install.packages("spdep")
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(spdep)
 
+countries <- st_read("C:/Users/tobyj/OneDrive/Documents/UoN Datasets/Hazards repository/ne_10m_admin-0_countries")
+populated_places <- st_read("C:/Users/tobyj/OneDrive/Documents/UoN Datasets/Hazards repository/ne_110m_populated_places")
+earthquakes <- X2_5_week_csv
+
+colSums(is.na(earthquakes))
+colSums(is.na(disasters))
+colSums(is.na(countries))
+sum(duplicated(earthquakes))
+sum(duplicated(disasters))
+sum(duplicated(countries))
+str(earthquakes)
+str(disasters)
+str(countries)
+summary(earthquakes)
+summary(disasters)
+summary(countries)
+
+all_disasters <- subset(disasters, type == "All disasters")
+disasters_drought <- subset(disasters, type == "Drought")
+disasters_earthquake <- subset(disasters, type == "Earthquake")
+disasters_extreme_temperature <- subset(disasters, type == "Extreme temperature")
+disasters_extreme_weather <- subset(disasters, type == "Extreme weather")
+disasters_flood<- subset(disasters, type == "Flood")
+disasters_landslide <- subset(disasters, type == "Landslide")
+disasters_mass_movement_dry <- subset(disasters, type == "Mass movement (dry)")
+disasters_volcanic_activity <- subset(disasters, type == "Volcanic activity")
+disasters_wildfire <- subset(disasters, type == "Wildfire")
+
+plot(all_disasters$year, all_disasters$events, type="l", xlab="Year", ylab="Events", main="Figure 2- Global Disasters Timeline", col="black") 
+
+plot(disasters_drought$year, disasters_drought$events, type="l", xlab="Year", ylab="Events", main="Figure 3- Global Disasters Timeline (Climatic)",ylim=c(0,230), col="brown")
+lines(disasters_extreme_temperature$year, disasters_extreme_temperature$events, type="l", col="orange")
+lines(disasters_extreme_weather$year, disasters_extreme_weather$events, type="l", col="lightblue")
+lines(disasters_flood$year,disasters_flood$events, type="l", col="blue")
+lines(disasters_wildfire$year,disasters_wildfire$events, type="l", col="red")
+legend("topleft",legend=c("Drought","Extreme Temperature","Extreme Weather","Flood","Wildfire"),lty = 1, bty="n", col=c("brown","orange","lightblue","blue","red"))
+
+plot(disasters_earthquake$year, disasters_earthquake$events, type="l", xlab="Year", ylab="Events", main="Figure 4- Global Disasters Timeline (Tectonic and Mass Movement)", ylim=c(0,45), col="purple")
+lines(disasters_landslide$year,disasters_landslide$events, type="l", col="lightgrey")
+lines(disasters_mass_movement_dry$year,disasters_mass_movement_dry$events, type="l", col="darkgrey")
+lines(disasters_volcanic_activity$year,disasters_volcanic_activity$events, type="l", col="darkred")
+legend("topleft",legend=c("Earthquake","Landslides","Mass movement","Volcanic Activity"), lty = 1, bty="n", col=c("purple","lightgrey","darkgrey","darkred"))
+
+plot(disasters_drought$year, disasters_drought$events, type="l", xlab="Year", ylab="Events", main="Figure 3a- Global Disasters Timeline (Climatic)", ylim=c(0,52), col="brown")
+lines(disasters_extreme_temperature$year, disasters_extreme_temperature$events, type="l", col="orange")
+lines(disasters_wildfire$year,disasters_wildfire$events, type="l", col="red")
+legend("topleft",legend=c("Drought","Extreme Temperature","Wildfire"),lty = 1, bty="n", col=c("brown","orange","red"))
+
+plot(disasters_flood$year, disasters_flood$events, type="l", xlab="Year", ylab="Events", main="Figure 3b- Global Disasters Timeline (Climatic)", col="blue")
+lines(disasters_extreme_weather$year, disasters_extreme_weather$events, type="l", col="lightblue")
+legend("topleft",legend=c("Flood","Extreme Weather"),lty = 1, bty="n", col=c("blue","lightblue"))
+
+disaster_totals <- aggregate(events ~ type, data = disasters, sum)
+disaster_totals <- disaster_totals[-c(1, 7), ]
+
+barplot(disaster_totals$events,names.arg = c("Drought","Earthquake","Ext Temp","Ext Weather","Flood","Landslide","Mass Movement","Volcanic","Wildfire"),xlab = "Type of Disaster",col=c("brown","purple","orange","lightblue","blue","lightgrey","darkgrey","darkred","red"),ylab = "Events",main = "Figure 1- Frequency of Disasters")
+
+plot(earthquakes$depth,earthquakes$mag, xlab="Depth (km)",ylab="Magnitude", main="Figure 5- Sept/Oct 2022 Earthquakes")
+
+par(mar = c(2, 2, 2, 2))
+
+earthquakes_sf <- st_as_sf(earthquakes,coords = c("longitude", "latitude"),crs = 4326)
+plot(st_geometry(earthquakes_sf))
+plot(st_geometry(countries))
+plot(st_geometry(countries),col = "white",border = "black", main="Figure 6- Spatial Distribution of Sept/Oct Earthquakes")
+plot(st_geometry(earthquakes_sf),add = TRUE,pch = 16,cex = 0.5,col="red")
