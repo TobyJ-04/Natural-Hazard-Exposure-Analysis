@@ -1,1 +1,0 @@
-# Catastrophe-Risk-Portfolio-Analysis
